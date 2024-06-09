@@ -100,8 +100,9 @@ const verifyEmail = async (req, res) => {
 const verifyPassword = async (req, res) => {
   try {
     const { password, userId } = req.body;
-
+    console.log(userId, "userid");
     const user = await UserModel.findById(userId);
+    console.log(user, "user");
     const verifyPassword = await bcryptjs.compare(password, user.password);
 
     if (!verifyPassword) {
