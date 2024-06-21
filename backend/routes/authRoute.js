@@ -6,6 +6,7 @@ const {
   userDetails,
   logout,
   updateUserDetails,
+  filterUser,
 } = require("../controllers/authController");
 const router = express.Router();
 
@@ -23,6 +24,9 @@ router.get("/get-user-details", userDetails);
 
 // UPDATE USER DETAILS || PUT METHOD
 router.put("/update-user-details", updateUserDetails);
+
+// Filter USER DETAILS || POST METHOD
+router.post("/search-user", filterUser);
 
 // LOGOUT || GET METHOD
 router.get("/logout", logout);

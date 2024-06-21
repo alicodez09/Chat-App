@@ -6,7 +6,7 @@ const getUserDetailsWithToken = require("../middlewares/getUserDetailsWithToken"
 //! Register User
 const Register = async (req, res) => {
   try {
-    const { name, email, password, profile_pic } = req.body;
+    const { name, email, password, profile_pic, phone } = req.body;
 
     // Checking the user
     const existingUser = await UserModel.findOne({ email });
@@ -29,6 +29,7 @@ const Register = async (req, res) => {
       name,
       email,
       profile_pic,
+      phone,
       password: hashPassword,
       assign_password: password,
     };
@@ -106,7 +107,7 @@ const verifyPassword = async (req, res) => {
     const verifyPassword = await bcryptjs.compare(password, user.password);
 
     if (!verifyPassword) {
-      return res.status(200).send({
+      return res.status(500).send({
         success: false,
         message: "User Password not Verified Successfully",
       });
@@ -165,16 +166,17 @@ const userDetails = async (req, res) => {
 };
 
 //! Update User Details
+
 const updateUserDetails = async (req, res) => {
   try {
     const token = req.cookies.token || "";
     const user = await getUserDetailsWithToken(token);
-    const { name, profile_pic } = req.body;
+    const { name, profile_pic, phone } = req.body;
 
     // Updating the user
     await UserModel.findByIdAndUpdate(
       { _id: user._id },
-      { name, profile_pic },
+      { name, profile_pic, phone },
       { new: true }
     );
 
@@ -203,9 +205,41 @@ const logout = async (req, res) => {
       http: true,
       secure: true,
     };
+
     return res.cookie("token", "", cookieOptions).status(200).send({
       success: true,
       message: "Session out",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({
+      success: false,
+      message: "Something wents wrong",
+      error,
+    });
+  }
+};
+// Filter User
+
+const filterUser = async (req, res) => {
+  try {
+    const { search } = req.body;
+    const query = new RegExp(search, "i", "g");
+    // const user=await UserModel.find({
+    //   "$or":[
+    //     {name:query},
+    //     {email:query},
+    //   ]
+    // }).select("-password -assign_password");
+
+    const user = await UserModel.find({
+      $or: [{ name: query }, { email: query }],
+    }).select("-password -assign_password");
+
+    res.status(200).send({
+      success: true,
+      message: "Get All users Successfully",
+      data: user,
     });
   } catch (error) {
     console.log(error);
@@ -223,5 +257,6 @@ module.exports = {
   verifyPassword,
   userDetails,
   updateUserDetails,
+  filterUser,
   logout,
 };

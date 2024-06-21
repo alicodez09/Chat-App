@@ -13,6 +13,7 @@ const Register = () => {
     email: "",
     password: "",
     profile_pic: "",
+    phone: "",
   });
 
   const [uploadPhoto, setUploadPhoto] = useState("");
@@ -62,6 +63,7 @@ const Register = () => {
           email: "",
           password: "",
           profile_pic: "",
+          phone: "",
         });
         navigate("/email");
       }
@@ -101,6 +103,7 @@ const Register = () => {
               required
             />
           </div>
+
           <div className="flex flex-col gap-1">
             <label htmlFor="email">Password</label>
             <input
@@ -110,6 +113,19 @@ const Register = () => {
               placeholder="Enter Your Password"
               className="bg-slate-100 px-2 py-1 focus:outline-primary"
               value={data.password}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="phone">Phone</label>
+            <input
+              type="number"
+              id="phone"
+              name="phone"
+              placeholder="Enter Your Phone Number"
+              className="bg-slate-100 px-2 py-1 focus:outline-primary"
+              value={data.phone}
               onChange={handleChange}
               required
             />

@@ -1,16 +1,24 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { PiUserCircle } from "react-icons/pi";
+import Avator from "../components/Avator";
+// import { useDispatch } from "react-redux";
+// import { setToken } from "../redux/userSlice";
 const CheckPassword = () => {
   const [data, setData] = useState({
     password: "",
+    userId: "",
   });
 
   const navigate = useNavigate();
   const location = useLocation();
-  console.log("location", location.state.data);
+  // const dispatch = useDispatch();
+  useEffect(() => {
+    if (!location?.state?.data?.name) {
+      navigate("/email");
+    }
+  }, [location?.state?.data?.name, navigate]);
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -28,9 +36,27 @@ const CheckPassword = () => {
     e.stopPropagation();
     const URL = `${process.env.REACT_APP_BASE_URL}/auth/verify-user-password`;
     try {
-      const response = await axios.post(URL, data);
-      toast.success(response.data.message);
-      if (response.data.success) {
+      const response = await axios({
+        method: "post",
+        url: URL,
+        data: {
+          userId: location?.state?.data?._id,
+          password: data?.password,
+        },
+        withCredentials: true,
+      });
+
+      // const payload = {
+      //   password: data?.password,
+      //   userId: location?.state?.data?._id,
+      // };
+      // const response = await axios.post(URL, payload, {
+      //   withCredentials: true,
+      // });
+      if (response?.data?.success) {
+        toast.success(response?.data?.message);
+        // dispatch(setToken(response?.data?.token));
+        localStorage.setItem("token", response?.data?.token);
         setData({
           password: "",
         });
@@ -44,10 +70,17 @@ const CheckPassword = () => {
   return (
     <div className="mt-5">
       <div className="bg-white w-full max-w-md  rounded overflow-hidden p-4 mx-auto">
-        <div className="w-fit mx-auto mb-2">
-          <PiUserCircle size={80} />
+        <div className="w-fit mx-auto mb-2 flex justify-center items-center flex-col">
+          <Avator
+            width={70}
+            height={70}
+            // name={location?.state?.data?.name}
+            // imageURL={location?.state?.data?.profile_pic}
+          />
+          <h2 className="mt-2 font-semibold text-lg">
+            {location?.state?.data?.name}
+          </h2>
         </div>
-        <h3 className="text-center">Welcome to chat App</h3>
         <form className="grid gap-4 mt-5" onSubmit={handleSubmit}>
           <div className="flex flex-col gap-1">
             <label htmlFor="password">Password</label>
@@ -64,15 +97,17 @@ const CheckPassword = () => {
           </div>
 
           <button className="bg-primary text-lg text-white px-4 py-1 hover:bg-secondory rounded mt-2 font-bold leading-relaxed">
-            Let's Go
+            Login
           </button>
+          <p className="my-3 text-center">
+            <Link
+              to={"/forgot-password"}
+              className="hover:text-primary font-semibold"
+            >
+              Forgot Password?
+            </Link>
+          </p>
         </form>
-        <p className="my-3 text-center">
-          Don't have an account?{" "}
-          <Link to={"/register"} className="hover:text-primary font-semibold">
-            Register
-          </Link>
-        </p>
       </div>
     </div>
   );
