@@ -1,7 +1,10 @@
 import React from "react";
 import { PiUserCircle } from "react-icons/pi";
+import { useSelector } from "react-redux";
 
 const Avator = ({ userId, name, imageURL, width, height }) => {
+  const onlineUser = useSelector((state) => state?.user?.onlineUser);
+
   let avatorName = "";
   if (name) {
     const splitName = name?.split(" ");
@@ -11,9 +14,11 @@ const Avator = ({ userId, name, imageURL, width, height }) => {
       avatorName = splitName[0][0];
     }
   }
+
+  const isOnline = onlineUser.includes(userId);
   return (
     <div
-      className="overflow-hidden rounded-full shadow border text-xl font-bold  text-white"
+      className="rounded-full shadow border text-xl font-bold  text-white relative"
       style={{ width: width + "px", height: height + "px" }}
     >
       {imageURL ? (
@@ -34,6 +39,11 @@ const Avator = ({ userId, name, imageURL, width, height }) => {
         </div>
       ) : (
         <PiUserCircle size={width} color="#14213d" />
+      )}
+
+      {/* Online User */}
+      {isOnline && (
+        <div className="bg-green-600 p-1 absolute rounded-full bottom-2 -right-1  mr-1 z-10"></div>
       )}
     </div>
   );

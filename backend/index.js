@@ -4,8 +4,9 @@ require("dotenv").config();
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoute");
 const cookiesParser = require("cookie-parser");
+const { server, app } = require("./socket/index");
 
-const app = express();
+// const app = express();
 connectDB();
 app.use(
   cors({
@@ -21,6 +22,6 @@ app.use("/api/v1/auth", authRoutes);
 
 const PORT = process.env.PORT || 8082;
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log("Server is listening on Port", PORT);
 });

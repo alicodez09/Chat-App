@@ -60,7 +60,7 @@ const EditUserModal = ({ onClose, data }) => {
     }
   };
   return (
-    <div className="fixed top-0 bottom-0 left-0 right-0 bg-gray-700 bg-opacity-40 flex justify-center items-center">
+    <div className="fixed top-0 bottom-0 left-0 right-0 bg-gray-700 bg-opacity-40 flex justify-center items-center z-10">
       <div className="bg-white p-4 m-1 py-6 rounded w-full max-w-sm">
         <h2 className="font-semibold">Profile Details</h2>
         <p className="text-sm">Edit user details</p>
@@ -96,6 +96,7 @@ const EditUserModal = ({ onClose, data }) => {
                 height={40}
                 name={isUser?.name}
                 imageURL={isUser?.profile_pic}
+                userId={isUser?._id}
               />
               <label htmlFor="profile_pic">
                 <button className="font-semibold" onClick={handleOpenUpload}>

@@ -2,9 +2,16 @@ import axios from "axios";
 import React, { useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { logout, setToken, setUser } from "../redux/userSlice";
+import {
+  logout,
+  setOnlineUser,
+  setSocket,
+  setToken,
+  setUser,
+} from "../redux/userSlice";
 import Sidebar from "../components/Sidebar";
-import logo from "../assets/logo.png";
+import logo from "../assets/logooo.png";
+import io from "socket.io-client";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -37,6 +44,27 @@ const Home = () => {
   useEffect(() => {
     fetchUserDetails();
   }, []);
+
+  //! Socket Connection
+  useEffect(() => {
+    const socketConnection = io(process.env.REACT_APP_Backend_URL, {
+      auth: {
+        token: localStorage.getItem("token"),
+      },
+    });
+
+    socketConnection.on("onlineUser", (data) => {
+      console.log(data);
+      dispatch(setOnlineUser(data));
+    });
+
+    dispatch(setSocket(socketConnection));
+
+    return () => {
+      socketConnection.disconnect();
+    };
+  }, []);
+
   const basePath = location.pathname === "/";
   return (
     <div className="grid lg:grid-cols-[300px,1fr] h-screen max-h-screen">
@@ -52,7 +80,13 @@ const Home = () => {
         } justify-center items-center flex-col gap-3 hidden`}
       >
         <div>
-          <img src={logo} width={250} alt="logo" draggable={false} />
+          <img
+            src={logo}
+            width={150}
+            alt="logo"
+            draggable={false}
+            className="rounded-full"
+          />
         </div>
         <p className="text-lg text-slate-500">
           Send a message to start a chat.

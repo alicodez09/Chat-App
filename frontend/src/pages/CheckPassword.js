@@ -76,6 +76,7 @@ const CheckPassword = () => {
             height={70}
             // name={location?.state?.data?.name}
             // imageURL={location?.state?.data?.profile_pic}
+            userId={location?.state?.data?._id}
           />
           <h2 className="mt-2 font-semibold text-lg">
             {location?.state?.data?.name}
