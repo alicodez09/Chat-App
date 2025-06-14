@@ -38,7 +38,7 @@ io.on("connection", async (socket) => {
   //Todo=> Online User
   onlineUser.add(user?._id?.toString());
 
-  //Todo=> Sending online user to frontend
+  //Todo=> Sending online user and previous chat to frontend
   io.emit("onlineUser", Array.from(onlineUser));
 
   socket.on("message-page", async (userId) => {
@@ -55,7 +55,20 @@ io.on("connection", async (socket) => {
     };
 
     socket.emit("message-user", payload);
+
+    //Todo=> Get Previous Message
+    let getConversationMessage = await ConversationModel.findOne({
+      $or: [
+        { sender: user?._id, receiver: userId },
+        { sender: userId, receiver: user?._id },
+      ],
+    })
+      .populate("messages")
+      .sort({ updatedAt: -1 });
+
+    socket.emit("message", getConversationMessage?.messages);
   });
+
   //Todo=> New Message
   socket.on("new message", async (data) => {
     // check conversation is available for both users or not
@@ -106,6 +119,37 @@ io.on("connection", async (socket) => {
 
     io.to(data?.sender).emit("message", getConversationMessage?.messages);
     io.to(data?.receiver).emit("message", getConversationMessage?.messages);
+  });
+
+  //!sidebar
+  socket.on("sidebar", async (userId) => {
+    console.log("sidebar userId", userId);
+    const currentUserConversation = await ConversationModel.find({
+      $or: [{ sender: userId }, { receiver: userId }],
+    })
+      .sort({ updatedAt: -1 })
+      .populate("messages")
+      .populate("sender")
+      .populate("receiver");
+
+    const conversation = currentUserConversation.map((conv) => {
+      // const unSeenMsg=conv.messages.reduce((prev,current)=>prev+(current.seen?0:1),0)
+      const unSeenMsg = conv.messages.reduce(
+        (prev, current) => prev + (current.seen ? 0 : 1),
+        0
+      );
+
+      return {
+        _id: conv?._id,
+        sender: conv?.sender,
+        receiver: conv?.receiver,
+        unSeenMsg: unSeenMsg,
+        lastMsg: conv?.messages[conv.messages.length - 1],
+      };
+    });
+    console.log("conversation", conversation);
+
+    socket.emit("conversation", conversation);
   });
 
   //disconnect

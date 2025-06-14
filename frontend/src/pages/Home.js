@@ -2,6 +2,8 @@ import axios from "axios";
 import React, { useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import toast from "react-hot-toast";
+
 import {
   logout,
   setOnlineUser,

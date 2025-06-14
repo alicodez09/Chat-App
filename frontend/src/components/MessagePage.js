@@ -33,7 +33,6 @@ const MessagePage = () => {
   const [loading, setLoading] = useState(false);
   const [isAllMessages, setIsAllMessages] = useState([]);
   const currentMessage = useRef(null);
-
   useEffect(() => {
     if (currentMessage.current) {
       currentMessage.current.scrollIntoView({
@@ -222,14 +221,30 @@ const MessagePage = () => {
         {/* All Messages will show here */}
 
         <div className="flex flex-col gap-2 py-2 mx-2" ref={currentMessage}>
-          {isAllMessages.map((msg, index) => {
+          {isAllMessages?.map((msg, index) => {
             return (
               <>
                 <div
-                  className={`bg-white p-1 py-1 rounded w-fit ${
-                    user?._id === msg?.msgByUserId ? "ml-auto bg-teal-100" : ""
+                  className={`bg-white p-1 py-1 rounded w-fit max-w-[280px] md:max-w-sm lg:max-w-md ${
+                    user?._id === msg?.msgByUserId ? "bg-green-200 ml-auto" : ""
                   }`}
                 >
+                  <div className="w-full relative">
+                    {msg.imageUrl && (
+                      <img
+                        src={msg?.imageUrl}
+                        className="w-full h-full object-scale-down bg-white border border-primary"
+                      />
+                    )}
+
+                    {msg?.videoUrl && (
+                      <video
+                        src={msg?.videoUrl}
+                        className="w-full h-full object-scale-down bg-white border border-primary"
+                        controls
+                      />
+                    )}
+                  </div>
                   <p className="px-2 text-lg">{msg.text}</p>
                   <p className="text-xs ml-auto w-fit">
                     {moment(msg.createdAt).format("hh:mm")}

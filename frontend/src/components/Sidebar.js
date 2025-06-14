@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { IoChatbubbleEllipsesSharp } from "react-icons/io5";
 import { RiLogoutBoxLine } from "react-icons/ri";
 import { FaUserPlus } from "react-icons/fa";
@@ -10,10 +10,44 @@ import { GoArrowUpLeft } from "react-icons/go";
 import SearchUser from "./SearchUser";
 
 const Sidebar = () => {
-  const user = useSelector((state) => state?.user);
-  const [getUsers, setGetUsers] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
   const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
   const [isSearchUsersModalOpen, setIsSearchUsersModalOpen] = useState(false);
+
+  const user = useSelector((state) => state?.user);
+  const socketConnection = useSelector(
+    (state) => state?.user?.socketConnection
+  );
+
+  useEffect(() => {
+    if (socketConnection) {
+      socketConnection.emit("sidebar", user?._id);
+      socketConnection.on("conversation", (data) => {
+        console.log("conversation", data);
+        const conversationUserData = data?.map((conversationUser, index) => {
+          if (
+            conversationUser?.sender?._id === conversationUser?.receiver?._id
+          ) {
+            return {
+              ...conversationUser,
+              userDetails: conversationUser?.sender,
+            };
+          } else if (conversationUser?.receiver?._id !== user?._id) {
+            return {
+              ...conversationUser,
+              userDetails: conversationUser?.receiver,
+            };
+          } else {
+            return {
+              ...conversationUser,
+              userDetails: conversationUser?.sender,
+            };
+          }
+        });
+        setAllUsers(conversationUserData);
+      });
+    }
+  }, [socketConnection, user]);
 
   return (
     <div className="w-full h-full grid grid-cols-[48px,1fr]">
@@ -67,7 +101,7 @@ const Sidebar = () => {
         </div>
         <div className="p-[0.5px] bg-slate-300"></div>
         <div className="h-[calc(100vh-65px)] overflow-x-hidden overflow-y-auto scrollbar">
-          {getUsers.length === 0 && (
+          {allUsers.length === 0 && (
             <div className="mt-24">
               <div className="flex justify-center items-center my-4 text-slate-500">
                 <GoArrowUpLeft size={50} />
@@ -77,6 +111,22 @@ const Sidebar = () => {
               </p>
             </div>
           )}
+          {allUsers
+            .filter((conv) => conv?.userDetails?._id !== user?._id)
+            .map((conv, index) => {
+              return (
+                <div key={conv?._id}>
+                  <div>
+                    <Avator
+                      imageURL={conv?.userDetails?.profile_pic}
+                      name={conv?.userDetails?.name}
+                      width={40}
+                      height={40}
+                    />
+                  </div>
+                </div>
+              );
+            })}
         </div>
       </div>
       {/* Edit User Modal */}

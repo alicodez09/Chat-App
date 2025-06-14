@@ -12,11 +12,23 @@ const getUserDetailsWithToken = async (token) => {
       logout: true,
     };
   }
-  const decode = await jwt.verify(token, process.env.JWT_SECRET);
-  const user = await UserModel.findById(decode.id).select(
-    "-password -assign_password"
-  );
-  return user;
+
+  try {
+    const decode = await jwt.verify(token, process.env.JWT_SECRET);
+    const user = await UserModel.findById(decode.id).select(
+      "-password -assign_password"
+    );
+    return user;
+  } catch (error) {
+    console.log({
+      message: "Invalid Token",
+      logout: true,
+    });
+    return {
+      message: "Invalid Token",
+      logout: true,
+    };
+  }
 };
 
 module.exports = getUserDetailsWithToken;

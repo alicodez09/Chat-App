@@ -7,7 +7,7 @@ const AuthLayouts = ({ children }) => {
       <header className="flex justify-center items-center py-3 h-20 shadow-md bg-white">
         <img
           src={logo}
-          width={150}
+          width={60}
           alt="logo"
           draggable={false}
           className="rounded-full"
